@@ -33,14 +33,14 @@ class SplayTree
 		Node* createLeaf(T* data);
 		void insertBSTPrivate(Node* element, Node* ptr);  // Este se borra al final.
 		std::string inOrderPrivate(Node* ptr); // Debugging, se borra al ffinal.
-
-		/* Implementing */
 		Node* search(T* key, Node* root); //Tal vez solo dbeug.
 		void zig(Node* ptr);
+		void zag(Node* ptr);
+
+		/* Implementing */
+		void splay(Node* ptr);
 
 		/* ----- To Implement ----- */
-		void zag(Node* ptr);
-		void splay(Node* ptr);
 		void insertSplay(T* data, Node* ptr);
 		void remove(T* data, Node* ptr);
 
@@ -52,9 +52,9 @@ class SplayTree
 		int getNumberOfElements();
 		void inOrder();	          // Solo debugging. Se borra al final.
 		void insertBST(T* data);  // Se borra al final.
+		void zigTest(T* key); // Solo debug, se be borrar.
 		
 		/* Implementing */
-		void zigTest(T* key); // Solo debug, se be borrar.
 
 		/* ----------- To implement -------- */
 		void insertSplay(T* data);

@@ -129,8 +129,6 @@ void SplayTree<T>::zig(Node* ptr)
 		return;
 
 	Node* parent = ptr->parent;
-	if(root == parent)
-		root = ptr;
 	if (ptr != parent->left)
 		return;
 
@@ -143,26 +141,56 @@ void SplayTree<T>::zig(Node* ptr)
 	{
 		if (parent->parent->left == parent)
 			parent->parent->left = ptr;
-		if (parent->parent->right == parent)
+		else // if (parent->parent->right == parent)
 			parent->parent->right = ptr;
 	}
 
 	parent->parent = ptr;
 	ptr->right = parent;
+	if(root == parent)
+		root = ptr;
 	cout << "zig!" << endl;
+}
+
+template <typename T>
+void SplayTree<T>::zag(Node* ptr)
+{
+	if (ptr == NULL || ptr == root)
+		return;
+
+	Node* parent = ptr->parent;
+	if (ptr != parent->right)
+		return;
+
+	parent->right = ptr->left;
+	if (ptr->left != NULL)
+		ptr->left->parent = parent;
+
+	ptr->parent = parent->parent;
+	if (parent->parent != NULL)
+	{
+		if (parent->parent->left == parent)
+			parent->parent->left = ptr;
+		else 
+			parent->parent->right = ptr;
+	}
+
+	parent->parent = ptr;
+	ptr->left = parent;
+	if (root == parent)
+		root = ptr;
+	cout << "zag!" << endl;
 }
 
 template <typename T>
 void SplayTree<T>::zigTest(T* key)
 {
 
-	Node* n = search(key, root);
-	if (n == NULL) 
-	{
+	Node* pivot = search(key, root);
+	if (pivot == NULL) 
 		return;
-	}
 	cout << "Se hara zig!" << endl;
-	zig(n);
+	zag(pivot);
 }
 
 template <typename T>
@@ -170,12 +198,11 @@ typename SplayTree<T>::Node* SplayTree<T>::search(T* key, Node* ptr)
 {
 	if (ptr == NULL)
 		return NULL;
-
-	cout << ptr->data << endl;
-	if (ptr->data == key)
+	
+	if (*ptr->data == *key)
 		return ptr;
 
-	if (ptr->data <= key)
+	if (*key <= *ptr->data)
 		return search(key, ptr->left);
 	return search(key, ptr->right);
 }

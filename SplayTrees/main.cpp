@@ -15,18 +15,16 @@ int main()
 	SplayTree<int> tree;
 	std::string s = "[";
 
-	int* r;
+	int* r = (int*) malloc(sizeof(int));
 	for(int j = 0; j < 5; j++)
 	{
 		int* k = (int*) malloc(sizeof(int));
 		*k = rand() % 25;
-		if (j == 4) 
-			r = k;
+		if (j == 3) 
+			*r = *k;
 		s += std::to_string(*k) + ", ";
 		tree.insertBST(k);
 	}
-
-
 	s += "]";
 
 	cout << tree.isEmpty() << endl;
