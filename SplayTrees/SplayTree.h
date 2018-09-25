@@ -9,7 +9,6 @@ using namespace std;
 
 /* Expected type T must be comparable and should implement a ToString() function. */
 
-template <typename T>
 class SplayTree
 {
 
@@ -17,48 +16,46 @@ class SplayTree
 		class Node
 		{
 			public:
-				T* data;
+				int data;
 				Node* left;
 				Node* right;
 				Node* parent;
 
-				Node(T* data, Node* left, Node* right, Node* parent);
-				Node(T* data);
+				Node(int data, Node* left, Node* right, Node* parent);
+				Node(int data);
 		};
 
 		Node* root;
 		int numberOfElements;
 		
 		/* Implemented */
-		Node* createLeaf(T* data);
-		void insertBSTPrivate(Node* element, Node* ptr);  // Este se borra al final.
-		std::string inOrderPrivate(Node* ptr); // Debugging, se borra al ffinal.
-		Node* search(T* key, Node* root); //Tal vez solo dbeug.
+		Node* create_leaf(int data);
+		void insert_private(Node* element, Node* ptr);  // Este se borra al final.
+		std::string pre_order(Node* ptr); // Debugging, se borra al ffinal.
+		Node* search_private(int key, Node* root); //Tal vez solo dbeug.
 		void zig(Node* ptr);
 		void zag(Node* ptr);
-
-		/* Implementing */
 		void splay(Node* ptr);
 
+		/* Implementing */
+
 		/* ----- To Implement ----- */
-		void insertSplay(T* data, Node* ptr);
-		void remove(T* data, Node* ptr);
+		void remove(int data, Node* ptr);
 
 	public:
 		SplayTree();
 		
 		/* Implemented */
-		bool isEmpty();
-		int getNumberOfElements();
-		void inOrder();	          // Solo debugging. Se borra al final.
-		void insertBST(T* data);  // Se borra al final.
-		void zigTest(T* key); // Solo debug, se be borrar.
+		bool is_empty();
+		int size();
+		void to_string();	          // Solo debugging. Se borra al final.
+		void insert(int data);  // Se borra al final.
 		
 		/* Implementing */
+		void search(int key);  // Creo que debe de subir el más cercano a key (si key no está).
 
 		/* ----------- To implement -------- */
-		void insertSplay(T* data);
-		void remove(T* data);
+		void remove(int data);
 
 };
 

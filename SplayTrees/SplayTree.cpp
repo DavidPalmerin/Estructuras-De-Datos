@@ -6,8 +6,7 @@
 using namespace std;
 
 /* Constructor for inner class SplayTree::Node */
-template <typename T>
-SplayTree<T>::Node::Node(T* data, SplayTree::Node* left, 
+SplayTree::Node::Node(int data, SplayTree::Node* left, 
 	                     SplayTree::Node* right, SplayTree::Node* parent)
 {
 	this->data = data;
@@ -16,8 +15,7 @@ SplayTree<T>::Node::Node(T* data, SplayTree::Node* left,
 	this->parent = parent;
 }
 
-template <typename T>
-SplayTree<T>::Node::Node(T* data)
+SplayTree::Node::Node(int data)
 {
 	this->data = data;
 	this->left = NULL;
@@ -25,8 +23,7 @@ SplayTree<T>::Node::Node(T* data)
 	this->parent = NULL;
 }
 
-template <typename T>
-SplayTree<T>::SplayTree()
+SplayTree::SplayTree()
 {
 	this->root = NULL;
 	this->numberOfElements = 0;
@@ -34,42 +31,40 @@ SplayTree<T>::SplayTree()
 
 /* ------ Implementations of Functions. ------ */
 
-template <typename T>
-bool SplayTree<T>::isEmpty()
+bool SplayTree::is_empty()
 {
-	return root == NULL;
+	return numberOfElements == 0;
 }
 
-template <typename T>
-int SplayTree<T>::getNumberOfElements()
+int SplayTree::size()
 {
 	return numberOfElements;
 }
 
-template <typename T>
-typename SplayTree<T>::Node* SplayTree<T>::createLeaf(T* data)
+SplayTree::Node* SplayTree::create_leaf(int data)
 {
 	return new Node(data);
 }
 
-template <typename T>
-void SplayTree<T>::insertBST(T* data)
-{
-	if (data == NULL)
-		return;
-	
-	Node* element = createLeaf(data);
+void SplayTree::insert(int data)
+{	
+	Node* element = create_leaf(data);
 	if (root == NULL)
 		root = element;
-	else 
-		insertBSTPrivate(element, root);
+	else
+	{
+		insert_private(element, root);
+		splay(element);
+	}
 	numberOfElements += 1;
+	cout << "After insertion of: " + std::to_string(data) << endl;
+	to_string();
+
 }
 
-template <typename T>
-void SplayTree<T>::insertBSTPrivate(Node* e, Node* parent)
+void SplayTree::insert_private(Node* e, Node* parent)
 {	
-	if (*e->data <= *parent->data)
+	if (e->data < parent->data)
 	{
 		if (parent->left == NULL)
 		{
@@ -78,7 +73,7 @@ void SplayTree<T>::insertBSTPrivate(Node* e, Node* parent)
 			return;
 		}
 		else
-			insertBSTPrivate(e, parent->left);
+			insert_private(e, parent->left);
 	}
 	else 
 	{
@@ -89,26 +84,24 @@ void SplayTree<T>::insertBSTPrivate(Node* e, Node* parent)
 			return;
 		}
 		else 
-			insertBSTPrivate(e, parent->right);
+			insert_private(e, parent->right);
 	}
 }
 
-template <typename T>
-void SplayTree<T>::inOrder()
+void SplayTree::to_string()
 {
-	cout << "[" + inOrderPrivate(root) + "]" << endl;
+	cout << " Preorder: [" + pre_order(root) + "]" << endl;
 }
 
-template <typename T>
-std::string SplayTree<T>::inOrderPrivate(Node* ptr)
+std::string SplayTree::pre_order(Node* ptr)
 {
 	std::string currentValue;
 	if (ptr == NULL)
 		return currentValue;
 	
-	currentValue = std::to_string(*ptr->data);
-	std::string left  = inOrderPrivate(ptr->left);
-	std::string right = inOrderPrivate(ptr->right);
+	currentValue = std::to_string(ptr->data);
+	std::string left  = pre_order(ptr->left);
+	std::string right = pre_order(ptr->right);
 
 	if (left.empty() && right.empty())
 		return currentValue;
@@ -122,89 +115,114 @@ std::string SplayTree<T>::inOrderPrivate(Node* ptr)
 }
 
 
-template <typename T>
-void SplayTree<T>::zig(Node* ptr)
+void SplayTree::zig(Node* ptr)
 {
-	if (ptr == NULL || ptr == root)
-		return;
-
-	Node* parent = ptr->parent;
-	if (ptr != parent->left)
-		return;
-
-	parent->left = ptr->right;
-	if (ptr->right != NULL)
-		ptr->right->parent = parent;
+	Node* tmp_node = ptr->right;
+	int aux_data = ptr->data;
 	
-	ptr->parent = parent->parent;
-	if (parent->parent != NULL)
-	{
-		if (parent->parent->left == parent)
-			parent->parent->left = ptr;
-		else // if (parent->parent->right == parent)
-			parent->parent->right = ptr;
-	}
-
-	parent->parent = ptr;
-	ptr->right = parent;
-	if(root == parent)
-		root = ptr;
-	cout << "zig!" << endl;
-}
-
-template <typename T>
-void SplayTree<T>::zag(Node* ptr)
-{
-	if (ptr == NULL || ptr == root)
-		return;
-
-	Node* parent = ptr->parent;
-	if (ptr != parent->right)
-		return;
-
-	parent->right = ptr->left;
 	if (ptr->left != NULL)
-		ptr->left->parent = parent;
-
-	ptr->parent = parent->parent;
-	if (parent->parent != NULL)
 	{
-		if (parent->parent->left == parent)
-			parent->parent->left = ptr;
-		else 
-			parent->parent->right = ptr;
+		ptr->right = ptr->left;
+		ptr->data = ptr->left->data;
+		
+		ptr->left = ptr->right->left;
+		if (ptr->left != NULL)
+			ptr->left->parent = ptr;
+		
+		ptr->right->left = ptr->right->right;
+		
+		ptr->right->right = tmp_node;
+		if (ptr->right->right != NULL)
+			ptr->right->right->parent = ptr->right;
+		
+		ptr->right->data = aux_data;
 	}
-
-	parent->parent = ptr;
-	ptr->left = parent;
-	if (root == parent)
-		root = ptr;
-	cout << "zag!" << endl;
 }
 
-template <typename T>
-void SplayTree<T>::zigTest(T* key)
+void SplayTree::zag(Node* ptr)
 {
+	Node* tmp_node = ptr->left;
+	int aux_data = ptr->data;
+	
+	if (ptr->right != NULL)
+	{
+		ptr->left = ptr->right;
+		ptr->data = ptr->right->data;
+		
+		ptr->right = ptr->left->right;
+		if (ptr->right != NULL)
+			ptr->right->parent = ptr;
 
-	Node* pivot = search(key, root);
-	if (pivot == NULL) 
-		return;
-	cout << "Se hara zig!" << endl;
-	zag(pivot);
+		ptr->left->right = ptr->left->left;
+		
+		ptr->left->left = tmp_node;
+		if (ptr->left->left != NULL)
+			ptr->left->left->parent = ptr->left;
+
+		ptr->left->data = aux_data;
+	}
 }
 
-template <typename T>
-typename SplayTree<T>::Node* SplayTree<T>::search(T* key, Node* ptr)
+void SplayTree::search(int key)
+{
+	Node* node = search_private(key, root);
+	if (node == NULL)
+		return;
+	splay(node);
+}
+
+SplayTree::Node* SplayTree::search_private(int key, Node* ptr)
 {
 	if (ptr == NULL)
 		return NULL;
 	
-	if (*ptr->data == *key)
+	if (ptr->data == key)
 		return ptr;
 
-	if (*key <= *ptr->data)
-		return search(key, ptr->left);
-	return search(key, ptr->right);
+	if (key < ptr->data)
+		return search_private(key, ptr->left);
+	return search_private(key, ptr->right);
 }
 
+void SplayTree::splay(Node* ptr)
+{
+	if (ptr == root)
+		return;
+
+	Node* parent = ptr->parent;
+	if (parent == root)
+	{
+		if (ptr == parent->left)
+			zig(parent);
+		else
+			zag(parent);
+		ptr = parent;
+		return;
+	}
+
+	Node* grandparent = parent->parent;
+	if (ptr == parent->left && parent == grandparent->left)
+	{
+		zig(grandparent);
+		zig(grandparent);
+	}
+	else if (ptr == parent->left && parent == grandparent->right)
+	{
+		zig(parent);
+		zag(grandparent);
+	}
+	else if (ptr == parent->right && parent == grandparent->left)
+	{
+		zag(parent);
+		zig(grandparent);
+	}
+	else if (ptr == parent->right && parent == grandparent->right)
+	{
+		zag(grandparent);
+		zag(grandparent);
+	}
+	
+	ptr = grandparent;
+	splay(ptr);
+}
 
