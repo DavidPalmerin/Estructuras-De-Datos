@@ -26,19 +26,24 @@ SplayTree::Node::Node(int data)
 SplayTree::SplayTree()
 {
 	this->root = NULL;
-	this->numberOfElements = 0;
+	this->number_of_elements = 0;
 }
 
-/* ------ Implementations of Functions. ------ */
+/* ------ Implementation of Functions. ------ */
 
 bool SplayTree::is_empty()
 {
-	return numberOfElements == 0;
+	return number_of_elements == 0;
 }
 
 int SplayTree::size()
 {
-	return numberOfElements;
+	return number_of_elements;
+}
+
+int SplayTree::get_root_data()
+{
+	return root->data;
 }
 
 SplayTree::Node* SplayTree::create_leaf(int data)
@@ -56,9 +61,7 @@ void SplayTree::insert(int data)
 		insert_private(element, root);
 		splay(element);
 	}
-	numberOfElements += 1;
-	cout << "After insertion of: " + std::to_string(data) << endl;
-	to_string();
+	number_of_elements += 1;
 
 }
 
@@ -90,7 +93,7 @@ void SplayTree::insert_private(Node* e, Node* parent)
 
 void SplayTree::to_string()
 {
-	cout << " Preorder: [" + pre_order(root) + "]" << endl;
+	cout << "\tPre-order: [" + pre_order(root) + "]" << endl;
 }
 
 std::string SplayTree::pre_order(Node* ptr)
@@ -163,25 +166,26 @@ void SplayTree::zag(Node* ptr)
 	}
 }
 
-void SplayTree::search(int key)
+SplayTree::Node* SplayTree::search(int key)
 {
-	Node* node = search_private(key, root);
-	if (node == NULL)
-		return;
-	splay(node);
+	Node* node = search_private(key, root, root);
+	if (node != NULL)
+		splay(node);
+
+	return node;
 }
 
-SplayTree::Node* SplayTree::search_private(int key, Node* ptr)
+SplayTree::Node* SplayTree::search_private(int key, Node* ptr, Node* closer)
 {
 	if (ptr == NULL)
-		return NULL;
+		return closer;
 	
 	if (ptr->data == key)
 		return ptr;
 
 	if (key < ptr->data)
-		return search_private(key, ptr->left);
-	return search_private(key, ptr->right);
+		return search_private(key, ptr->left, ptr);
+	return search_private(key, ptr->right, ptr);
 }
 
 void SplayTree::splay(Node* ptr)
@@ -225,4 +229,81 @@ void SplayTree::splay(Node* ptr)
 	ptr = grandparent;
 	splay(ptr);
 }
+
+void SplayTree::remove(int data)
+{
+	Node* node = search_private(data, root, root);
+	if (node == NULL)
+		return;
+	
+	/* search_private returns the element, if it is not in the tree then
+	   returns the closest one. So we have to verify that node has the
+	   same value data that we are looking for. */
+	if (node->data != data)
+		return;
+
+	if (number_of_elements == 1)
+	{
+		root = NULL;
+		return;
+	}
+
+	Node* next = successor(node);
+	/* Greatest element doesn't have a successor.*/
+	if (next != node) 
+	{
+		splay(next);
+		node = search_private(data, root, root);
+	}
+	splay(node);
+	to_string();
+
+	/* Last splay changed node reference, so we must find it's 
+	new position in the tree. */
+	node = search_private(data, root, root);
+	Node* left_subtree = node->left;
+	Node* right_subtree = node->right;
+	if (right_subtree != NULL)
+	{
+		right_subtree->left = left_subtree;
+		right_subtree->parent = NULL;
+	}
+	else if (left_subtree != NULL)
+	{
+		root = left_subtree;
+		left_subtree->parent = NULL;
+		return;
+	}
+
+	if (left_subtree != NULL)
+		left_subtree->parent = right_subtree;
+	root = right_subtree;
+}
+
+SplayTree::Node* SplayTree::successor(Node* ptr)
+{
+	if (ptr == NULL)
+		return ptr;
+
+	if (ptr->right != NULL)
+		return subtree_smaller(ptr->right);
+	else if (ptr->parent->left == ptr)
+		return ptr->parent;
+
+	/* Case for the greatest element in the tree. */
+	if (ptr->right == NULL)
+		return ptr;
+
+	return NULL;
+}
+
+SplayTree::Node* SplayTree::subtree_smaller(Node* ptr)
+{
+	Node* aux = ptr;
+	while (aux->left != NULL)
+		aux = aux->left;
+	return aux;
+}
+
+
 
