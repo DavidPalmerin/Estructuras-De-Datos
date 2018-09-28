@@ -21,33 +21,29 @@ int main()
 	{
 		std::string escape;
 		cout << "-------------- Splay Trees ----------------" << endl;
-		cout << "Exit? Y/N ";
-		cin >> escape;
-		if (escape == "Y" || escape == "y")
-			break;
 
 		int action;
 		cout << "\n1. Insert" << endl;
 		cout << "2. Search" << endl;
 		cout << "3. Remove" << endl;
-		cout << "Select an option [Default is Remove]: ";
+		cout << "4. Exit" << endl;
+		cout << "Select an option: ";
 		cin >> action;
+
+		if (action == 4)
+			break;
 
 		int input;
 		cout << "\tElement: ";
 		cin >> input;
 
-		switch (action)
-		{
-			case 1:
-				slappy.insert(input);
-				break;
-			case 2:
-				slappy.search(input);
-				break;
-			default:
-				slappy.remove(input);
-		}
+		if (action ==  1)
+			slappy.insert(input);
+		else if (action ==  2)
+			slappy.search(input);
+		else
+			slappy.remove(input);
+		
 
 		if (action == 2)
 		{

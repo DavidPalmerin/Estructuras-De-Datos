@@ -7,10 +7,22 @@ using namespace std;
 #ifndef SPLAYTREE_H
 #define SPLAYTREE_H
 
-
+/**
+	* Class definition for Splay Trees.
+	* Our implementations has:
+	* 	A root reference that must not be lost.
+	* 	A counter of the elements that are in the tree.
+*/
 class SplayTree
 {
 	public:
+		/**
+			* Class definition for Node.
+			* This is part of the structure of the tree which will have:
+			* An element to be stored.
+			* 	Left reference to it's left subtree.
+			* 	Right reference to it's right subtree. 
+		*/
 		class Node
 		{
 			public:
@@ -35,10 +47,11 @@ class SplayTree
 		void remove(int data);
 
 	private: 
+
+		/* Attributes for Splay Trees. */
 		Node* root;
 		int number_of_elements;
 		
-		Node* create_leaf(int data);
 		std::string pre_order(Node* ptr); 
 		Node* successor(Node* ptr); 
 		Node* subtree_smaller(Node* ptr);
